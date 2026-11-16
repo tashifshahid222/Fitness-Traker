@@ -1,0 +1,55 @@
+/* ---- Goals page layout helpers ---- */
+.goal-head > div:first-child {
+  min-width: 0;
+}
+.goal-head p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.goal-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.35rem;
+}
+.goal-progress-main {
+  flex: 1;
+  min-width: 0;
+}
+.goal-progress-main .progress-block {
+  margin-bottom: 0.35rem;
+}
+.goal-badges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.goal-card .btn-row {
+  margin-top: 0.45rem;
+  flex-wrap: wrap;
+}
+@media (max-width: 560px) {
+  .goal-head {
+    flex-wrap: wrap;
+  }
+  .goal-head > div:first-child {
+    flex: 1 1 100%;
+  }
+  .goal-badges {
+    justify-content: flex-start;
+  }
+  .goal-progress-row {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 420px) {
+  .goal-progress-row {
+    flex-wrap: wrap;
+  }
+  .goal-progress-main {
+    flex: 1 1 100%;
+  }
+}

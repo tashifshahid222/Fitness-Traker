@@ -1,0 +1,63 @@
+/* ---- Profile page ---- */
+.profile-page {
+  min-width: 0;
+  /* Never let the profile layout create a horizontal scrollbar / sideways pan */
+  overflow-x: clip;
+}
+.profile-ident:last-child {
+  margin-bottom: 0;
+}
+.card-head h2 .stat-icon {
+  vertical-align: middle;
+  margin-right: 0.55rem;
+}
+.profile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+.dialog-msg {
+  display: block;
+}
+.dialog-msg-text {
+  display: block;
+  margin-bottom: 1rem;
+}
+.dialog-msg .form-group {
+  display: block;
+}
+
+/* ---- Profile picture picker ---- */
+.file-picker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.file-preview {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.file-preview.placeholder {
+  font-size: 1.35rem;
+}
+.field-hint {
+  font-size: var(--fs-xs);
+  margin: 0.45rem 0 0;
+}
+.file-picker label.btn,
+.file-picker button.btn {
+  cursor: pointer;
+  margin-bottom: 0;
+  min-width: 150px;
+}

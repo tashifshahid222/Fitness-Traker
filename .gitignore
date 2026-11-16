@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+logs/*.log
+coverage/
+*.log
+.DS_Store
+
+# Machine-local database and runtime files
+.local/

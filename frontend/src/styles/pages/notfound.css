@@ -1,0 +1,31 @@
+.nf-page {
+  flex: 1;
+  min-height: 55vh;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 0.25rem;
+}
+
+.nf-card {
+  width: 100%;
+  max-width: 520px;
+  padding: 1.5rem;
+}
+
+.nf-code {
+  margin: 0;
+  font-size: clamp(3.4rem, 11vw, 5.4rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .nf-code {
+    background: var(--brand-grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

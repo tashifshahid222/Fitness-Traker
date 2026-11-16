@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Every workout. Every meal. Every small win. Track your fitness, understand your progress, and work toward your goals in one workspace." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0e0f0c" />
+    <title>Fitness Tracker</title>
+
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+          document.documentElement.dataset.theme = theme;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // If the app bundle could not load while offline (blank screen), reload
+      // as soon as the browser reports that the connection is back.
+      window.addEventListener('online', function () {
+        var root = document.getElementById('root');
+        if (!root || !root.firstElementChild) window.location.reload();
+      });
+    </script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
