@@ -2,9 +2,13 @@
 
 A full-stack fitness tracking application built with the **MERN** stack. Log workouts, track meals and macros, record weight and body measurements, set goals with automatic progress, and export everything as CSV or PDF — all behind a secure JWT-authenticated API and a responsive single-page React app.
 
+## Live Demo
+
+🔗 **https://fitness-tracker-project-7ch5.vercel.app/**
+
 ## Features
 
-- **Auth & profiles** — register, login, JWT session, profile editing, change password, and full account deletion (cascade removes all user data).
+- **Auth & profiles** — register, login, JWT session with refresh-token rotation, profile editing, change password, and full account deletion (cascade removes all user data).
 - **Workouts** — log exercise, category (strength/cardio/flexibility/balance/sports/other), sets × reps, weight, duration, and notes; search, filter, and paginate.
 - **Nutrition** — meal-type logging (breakfast/lunch/dinner/snack) with food items, calories, and macros; daily totals on the dashboard.
 - **Progress** — weigh-ins, body measurements, and named performance metrics; weight-trend and measurement charts.
@@ -18,12 +22,12 @@ A full-stack fitness tracking application built with the **MERN** stack. Log wor
 
 ## Tech stack
 
-| Layer     | Tech                                                          |
-|-----------|---------------------------------------------------------------|
-| Frontend  | React 18, Vite 5, React Router 6, Axios, Recharts, react-icons |
-| Backend   | Node.js, Express 4, Mongoose 8, JWT, bcrypt, zod 4, pdfkit     |
-| Database  | MongoDB (local or Atlas via `MONGO_URI`)                      |
-| Logging   | Winston + Morgan (`backend/logs/`)                            |
+| Layer     | Tech                                                                         |
+|-----------|------------------------------------------------------------------------------|
+| Frontend  | React 18, Vite 5, React Router 6, Axios, Recharts 3, Framer Motion, react-icons |
+| Backend   | Node.js, Express 5, Mongoose 9, JWT, bcrypt, zod 4, pdfkit                    |
+| Database  | MongoDB (local or Atlas via `MONGO_URI`)                                     |
+| Logging   | Winston + Morgan (`backend/logs/`)                                           |
 
 ## Project structure
 
@@ -31,22 +35,22 @@ A full-stack fitness tracking application built with the **MERN** stack. Log wor
 fitness-tracker/
 ├── backend/
 │   ├── src/
-│   │   ├── config/        # env validation, db connect, logger
-│ │ ├── middleware/ # protect, validate, rate limit, error handling
-│   │   ├── models/        # User, Workout, Nutrition, Progress, Goal, Notification, SupportTicket
+│   │   ├── config/        # env validation, db connect, logger, CORS allowed origins
+│   │   ├── middleware/    # protect, CSRF header check, validate, rate limit, error handling
+│   │   ├── models/        # User, Session, Workout, Nutrition, Progress, Goal, Notification, SupportTicket
 │   │   ├── services/      # business logic per module (incl. dashboard, analytics, reports)
 │   │   ├── controllers/   # HTTP layer
 │   │   ├── routes/        # /api/v1/* routers
 │   │   ├── validators/    # zod schemas
-│   │   ├── utils/         # ApiError, asyncHandler, JWT, query helpers, CSV/PDF
+│   │   ├── utils/         # ApiError, asyncHandler, JWT, refresh cookie, query helpers, response helpers
 │   │   └── seed.js        # demo data seeder (npm run seed)
-│   ├── nodemon.json       # dev watcher config (watches src/, ignores logs/)
+│   ├── nodemon.json       # dev watcher config (watches src/ and .env, ignores logs/)
 │   └── logs/              # access.log, combined.log, error.log
 └── frontend/
     └── src/
         ├── components/    # StatCard, Modal, Pagination, ProgressBar, badges, empty/error states…
         ├── layouts/       # PublicLayout (navbar+footer), MainLayout (sidebar)
-        ├── pages/         # 17 pages incl. Dashboard, Workouts, Nutrition, Progress, Goals, Analytics, Reports…
+        ├── pages/         # 20 pages incl. Dashboard, Workouts, Nutrition, Progress, Goals, Analytics, Reports…
         ├── services/      # axios instance + per-module API services
         ├── context/       # AuthProvider (user state, auto-logout on 401)
         └── hooks/ utils/  # useAuth, useDebounce, formatting helpers
@@ -81,25 +85,18 @@ In development, the browser calls `/api/v1` on Vite and Vite proxies requests to
 
 ### 3. Demo data (optional)
 
-Seed a demo account with ~6 weeks of realistic data (**1 Sep 2026 → 9 Oct 2026**):
+Seed a demo account with about six weeks of realistic data (**10 Sep 2026 → 22 Oct 2026**): workouts (Sundays are rest days), meals with macros, weigh-ins with measurements and performance metrics, goals (completed and active), notifications, and support tickets.
 
 ```bash
 cd backend
 npm run seed               # wipes + reseeds the demo account below
 ```
 
-| Collection | Records |
-|------------|---------|
-| Workouts | 44 (strength / cardio / flexibility; Sundays are rest days) |
-| Nutrition | 142 (breakfast / lunch / dinner / snacks with macros) |
-| Progress | 13 weigh-ins with measurements and performance metrics |
-| Goals | 5 (1 completed, 4 active) |
-| Notifications | 4 |
-| Support tickets | 2 |
-
 **Login:** `fitnesstracker@gmail.com` / `fitness1234`
 
 Re-running `npm run seed` clears that user's existing data first, so it is idempotent. To seed a different window/account, edit the `START`, `END`, `email`, and `username` constants at the top of `backend/src/seed.js`.
+
+> These demo credentials are for local development only. Never seed or use them in production.
 
 ### Production build
 
@@ -114,12 +111,13 @@ cd frontend && npm run build   # outputs to dist/
 | Variable                | Default                  | Notes                                                  |
 |-------------------------|--------------------------|--------------------------------------------------------|
 | `PORT`                  | `5000`                   | API port                                               |
-| `NODE_ENV`              | `development`            | `development` \| `production`                          |
+| `NODE_ENV`              | `development`            | `development` \| `production` \| `test`                |
 | `MONGO_URI`             | (unset)                  | Mongo connection string; required in production        |
 | `ACCESS_TOKEN_SECRET`   | development-only value   | Generate a unique random secret of at least 32 chars   |
-| `REFRESH_TOKEN_SECRET`  | development-only value   | Must be different from the access-token secret          |
+| `REFRESH_TOKEN_SECRET`  | development-only value   | Must be different from the access-token secret         |
 | `CLIENT_URL`            | `http://localhost:5173`  | Exact frontend origin allowed by CORS and CSRF checks  |
-| `LOG_LEVEL`             | `http` (dev) / `info` (prod) | Winston level                                     |
+| `REDIS_URL`             | (unset)                  | Reserved for future use; currently not read by the app |
+| `LOG_LEVEL`             | `http` (dev) / `info` (prod) | Winston level                                      |
 
 Set both JWT secrets in production. For example, run `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` twice and use each result for a different variable. The legacy `JWT_SECRET`/`JWT_EXPIRES_IN` values are no longer used.
 
@@ -129,7 +127,7 @@ Set both JWT secrets in production. For example, run `node -e "console.log(requi
 |-------------------|--------------------------------------|----------------------------------------------------|
 | `VITE_API_URL`    | `http://localhost:5000/api/v1`       | Backend API URL; Vite proxies requests to its host |
 
-For Vercel, deploy the `frontend/` directory as the project root and set `VITE_API_URL` in the Vercel project environment variables to the backend API URL, including `/api/v1`. This is a build-time variable, so redeploy after changing it. On Render, set `CLIENT_URL` to the exact Vercel frontend origin. The API allows that configured origin and uses credentialed CORS for the refresh cookie; because the frontend and API are on different sites, browsers that block third-party cookies may prevent persistent refresh sessions.
+For Vercel, deploy the `frontend/` directory as the project root and set `VITE_API_URL` in the Vercel project environment variables to the backend API URL, including `/api/v1`. This is a build-time variable, so redeploy after changing it. The included `frontend/vercel.json` rewrites all routes to `index.html` so React Router deep links work. On Render, set `CLIENT_URL` to the exact Vercel frontend origin. The API allows that configured origin and uses credentialed CORS for the refresh cookie; because the frontend and API are on different sites, browsers that block third-party cookies may prevent persistent refresh sessions.
 
 `.env` files are gitignored — never commit secrets.
 
@@ -144,39 +142,30 @@ All routes are mounted under **`/api/v1`** and return the standard envelope:
 | Module | Endpoints |
 |--------|-----------|
 | Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/logout-all`, `GET /auth/me` |
-| Users | `GET/PUT /users/me`, `PUT /users/me/password`, `DELETE /users/me` (account + data cascade) |
+| Users | `GET/PUT /users/me`, `PUT /users/me/password`, `DELETE /users/me` (requires `password` in the body; deletes account + data cascade) |
 | Workouts | `GET/POST /workouts`, `GET/PUT/DELETE /workouts/:id` (search, `category`, `from`/`to`, pagination) |
 | Nutrition | `GET/POST /nutrition`, `GET/PUT/DELETE /nutrition/:id` (search, `mealType`, date range) |
 | Progress | `GET/POST /progress`, `GET/PUT/DELETE /progress/:id` |
 | Goals | `GET/POST /goals`, `GET/PUT/DELETE /goals/:id` (achievement auto-notifies) |
-| Notifications | `GET /notifications`, `PATCH /notifications/:id/read`, `PATCH /notifications/read-all`, `DELETE /notifications/:id` |
+| Notifications | `GET /notifications`, `PUT /notifications/:id/read`, `PUT /notifications/read-all`, `DELETE /notifications/:id` |
 | Dashboard | `GET /dashboard`, `GET /dashboard/workout-analytics`, `GET /dashboard/nutrition-analytics`, `GET /dashboard/progress-analytics` |
-| Reports | `GET /reports/:type` (`workouts\|nutrition\|progress`), `GET /reports/:type/export?format=csv\|pdf` |
-| Support | `GET/POST /support/tickets`, `GET /support/tickets/:id`, `PATCH /support/tickets/:id/close` |
+| Reports | `GET /reports/workouts`, `GET /reports/nutrition`, `GET /reports/progress`, `GET /reports/export/csv?type=workouts\|nutrition\|progress`, `GET /reports/export/pdf?type=workouts\|nutrition\|progress` |
+| Support | `GET/POST /support`, `GET/PUT /support/:id` (send `{ "status": "closed" }` to close a ticket) |
 | Health | `GET /health` |
 
 **Status codes:** `200` success · `201` created · `400` bad request · `401` unauthenticated · `403` cross-user access · `404` not found · `409` duplicate/conflict · `422` validation (with per-field `errors`) · `429` rate limited.
 
 ## Testing
 
-Two standalone integration suites exist in `tests/api/` (written for Node's built-in fetch, no test framework required):
+There is no automated test suite in the repository yet. The API is tested manually with Postman using the lifecycle described below, and the frontend by hand in the browser.
 
-```bash
-# start the backend first, then:
-node tests/api/crud-api-test.cjs   # 62 checks: full CRUD, isolation, analytics, reports, notifications, cascade delete
-```
-
-```bash
-# backend serves `node src/server.js`; tests hit http://localhost:5000/api/v1
-```
-
-What the suite covers: two-user registration, workout/nutrition/progress/goal CRUD, search/filter/pagination, cross-user 403 isolation, invalid-input 422s, goal achievement → notification → mark-read flow, dashboard values, all analytics endpoints, JSON/CSV/PDF report endpoints, support tickets, preferences, password change, and account-deletion cascade (no orphaned `workouts`/`goals`).
+Planned: Jest + Supertest integration tests (auth, ownership isolation, validation errors) and Vitest + React Testing Library for the frontend.
 
 ## Authentication flow and API testing
 
 Registration creates the account but does not log in. After login, the API returns a 15-minute `accessToken` and sets a 7-day `HttpOnly` refresh cookie. MongoDB stores only the SHA-256 hash of each refresh token, keyed to a distinct device session. Refresh rotates both tokens atomically; reuse of a rotated token revokes that session. The React app keeps the access token in memory and restores authentication after reload by calling `/auth/refresh`.
 
-All POST authentication endpoints require `X-CSRF-Protection: 1`; browser requests must also use an allowed `Origin`. The Axios client sets this header automatically. Production uses a `Secure; SameSite=None` refresh cookie; development uses `SameSite=Lax`. The frontend proxies API calls through its own origin so refresh cookies are not dependent on third-party-cookie support. Production deployments must use HTTPS.
+All POST authentication endpoints require `X-CSRF-Protection: 1`; browser requests must also use an allowed `Origin`. The Axios client sets this header automatically. Production uses a `Secure; SameSite=None` refresh cookie; development uses `SameSite=Lax`. In development, Vite proxies API calls through its own origin. In production, the frontend and API are usually on different sites, so the refresh cookie is cross-site and browsers that block third-party cookies may not keep users signed in after a reload. Production deployments must use HTTPS.
 
 Postman lifecycle:
 
@@ -195,8 +184,18 @@ Set `baseUrl` to `http://localhost:5000/api/v1`. To test rotation, copy the prio
 - Refresh cookies are `HttpOnly`, scoped to `/api/v1/auth`, and cleared with matching cookie attributes.
 - MongoDB sessions include a TTL index, and expiration/revocation is checked before rotation; session indexes are ensured at backend startup.
 - Cookie-mutating routes use a required custom header and exact CORS-origin allow-list checks. Configure `CLIENT_URL` for the deployed frontend.
-- Helmet, zod input validation, and per-IP rate limits protect the API and authentication endpoints.
+- Helmet and zod input validation protect the API.
+- Rate limits (per IP, 15-minute window): `POST /auth/login` and `POST /auth/register` share a limit of 5 requests, `POST /auth/refresh` allows 60, and all other `/api` routes allow 300 (5000 in development so hot reloading does not trigger `429`). Limits are kept in memory, so they are per server instance.
+- Every record is scoped to its owner; accessing another user's record returns `403`.
+
+## Known limitations
+
+- No automated tests yet (see Testing).
+- Rate limiting is in-memory, so it does not share counters across multiple server instances.
+- Access tokens stay valid for up to 15 minutes after logout (stateless JWT validation).
 
 ## License & roadmap
 
-Built as a learning/demo project. Backlog (per product vision): email/password reset, admin user-management UI, workout routine templates, external calendar sync, email notifications, and OAuth.
+Built as a full-stack internship project. Backlog (per product vision): email/password reset, admin user-management UI, workout routine templates, external calendar sync, email notifications, and OAuth.
+
+Author: [tashif911](https://github.com/tashif911)
