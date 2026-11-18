@@ -198,4 +198,4 @@ Set `baseUrl` to `http://localhost:5000/api/v1`. To test rotation, copy the prio
 
 Built as a full-stack internship project. Backlog (per product vision): email/password reset, admin user-management UI, workout routine templates, external calendar sync, email notifications, and OAuth.
 
-Author: [tashif911](https://github.com/tashif222)
+Author: [tashifshahid222](github.com/tashifshahid222)
